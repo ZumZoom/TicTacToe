@@ -4,8 +4,8 @@
 
 void TicTacToe::clearBoard()
 {
-    for(size_t i = 0; i < 3; ++i)
-        for(size_t j = 0; j < 3; ++j)
+    for(size_t i = 0; i < DESK_SIZE; ++i)
+        for(size_t j = 0; j < DESK_SIZE; ++j)
             desk[i][j] = field();
     player = 0;
     nextMove = std::make_pair(-1, -1);
@@ -13,8 +13,8 @@ void TicTacToe::clearBoard()
 }
 
 void TicTacToe::updateField(int f_i, int f_j, QMouseEvent *event) {
-    for(int i = 0; i < FIELD_SIZE; ++i)
-        for(int j = 0; j < FIELD_SIZE; ++j) {
+    for(size_t i = 0; i < FIELD_SIZE; ++i)
+        for(size_t j = 0; j < FIELD_SIZE; ++j) {
             QRect cell = cellRect(f_i, f_j, i, j);
             if (cell.contains(event->pos())) {
                 if (desk[f_i][f_j].data[i][j] == field::Empty) {
@@ -44,8 +44,8 @@ void TicTacToe::updateField(int f_i, int f_j, QMouseEvent *event) {
 void TicTacToe::mousePressEvent(QMouseEvent *event)
 {
     if(nextMove.first == -1 && nextMove.second == -1) {
-        for(int f_i = 0; f_i < DESK_SIZE; ++f_i)
-            for(int f_j = 0; f_j < DESK_SIZE; ++f_j) {
+        for(size_t f_i = 0; f_i < DESK_SIZE; ++f_i)
+            for(size_t f_j = 0; f_j < DESK_SIZE; ++f_j) {
                 QRect field = fieldRect(f_i, f_j);
                 if(field.contains(event->pos())) {
                     updateField(f_i, f_j, event);
@@ -65,8 +65,8 @@ void TicTacToe::paintEvent(QPaintEvent * /* event */)
 
     painter.setPen(QPen(Qt::transparent));
 
-    for(int i = 0; i < 3; ++i)
-        for(int j = 0; j < 3; ++j)
+    for(size_t i = 0; i < DESK_SIZE; ++i)
+        for(size_t j = 0; j < DESK_SIZE; ++j)
             switch ( desk[i][j].winner )
             {
             case field::Cross :
@@ -104,8 +104,8 @@ void TicTacToe::paintEvent(QPaintEvent * /* event */)
 
     painter.setPen(QPen(Qt::black, 1));
 
-    for(int i = 0; i < 3; ++i)
-        for(int j = 0; j < 3; ++j) {
+    for(size_t i = 0; i < DESK_SIZE; ++i)
+        for(size_t j = 0; j < DESK_SIZE; ++j) {
             painter.drawLine(i * fieldWidth() + cellWidth(),
                              j * fieldHeight() + fieldHeight() * 0.05,
                              i * fieldWidth() + cellWidth(),
@@ -126,10 +126,10 @@ void TicTacToe::paintEvent(QPaintEvent * /* event */)
 
     painter.setPen(QPen(Qt::black, 2));
 
-    for(int f_i = 0; f_i < 3; ++f_i)
-        for(int f_j = 0; f_j < 3; ++f_j)
-            for(int i = 0; i < 3; ++i)
-                for(int j = 0; j < 3; ++j) {
+    for(size_t f_i = 0; f_i < DESK_SIZE; ++f_i)
+        for(size_t f_j = 0; f_j < DESK_SIZE; ++f_j)
+            for(size_t i = 0; i < FIELD_SIZE; ++i)
+                for(size_t j = 0; j < FIELD_SIZE; ++j) {
                     QRect cell = cellRect(f_i, f_j, i, j);
                     if (desk[f_i][f_j].data[i][j] == field::Cross) {
                         painter.drawLine(cell.topLeft(), cell.bottomRight());
@@ -147,8 +147,8 @@ void TicTacToe::paintEvent(QPaintEvent * /* event */)
 
 QRect TicTacToe::cellRect(int fieldRow, int fieldCol, int row, int col) const
 {
-    const int HMargin = width() / 90;
-    const int VMargin = height() / 90;
+    const int HMargin = width() / (DESK_SIZE * FIELD_SIZE * 10);
+    const int VMargin = height() / (DESK_SIZE * FIELD_SIZE * 10);
     return QRect(fieldCol * fieldWidth() + col * cellWidth() + HMargin,
                  fieldRow * fieldHeight() + row * cellHeight() + VMargin,
                  cellWidth() - 2 * HMargin,
@@ -164,7 +164,7 @@ QRect TicTacToe::fieldRect(int row, int column) const
 }
 
 void TicTacToe::checkWinner(int f_i, int f_j) {
-    for(int ci = 0; ci < 3; ++ci) {
+    for(size_t ci = 0; ci < FIELD_SIZE; ++ci) {
         if(desk[f_i][f_j].data[ci][0] == desk[f_i][f_j].data[ci][1] &&
            desk[f_i][f_j].data[ci][0] == desk[f_i][f_j].data[ci][2] &&
            desk[f_i][f_j].data[ci][0] != field::Empty)
@@ -208,12 +208,12 @@ void TicTacToe::checkWinner(int f_i, int f_j) {
 
 namespace
 {
-const QString WinMessages[] = { "2222222222222222", "Cross wins the match!", "Nought wins the match!", "Draw!" };
+const QString WinMessages[] = { "", "Cross wins the match!", "Nought wins the match!", "Draw!" };
 }
 
 void TicTacToe::checkGlobalWinner() {
     update();
-    for(int ci = 0; ci < 3; ++ci) {
+    for(size_t ci = 0; ci < DESK_SIZE; ++ci) {
         if(desk[ci][0].winner == desk[ci][1].winner &&
            desk[ci][0].winner == desk[ci][2].winner &&
            ( desk[ci][0].winner == field::Cross ||
@@ -252,8 +252,8 @@ void TicTacToe::checkGlobalWinner() {
         return;
     }
 
-    for(int i = 0; i < 3; ++i)
-        for(int j = 0; j < 3; ++j)
+    for(size_t i = 0; i < DESK_SIZE; ++i)
+        for(size_t j = 0; j < DESK_SIZE; ++j)
             if(desk[i][j].freeCells > 0)
                 return;
 
@@ -264,6 +264,5 @@ void TicTacToe::checkGlobalWinner() {
 void TicTacToe::showMessage(const QString &str) {
     QMessageBox msgbox;
     msgbox.setText(str);
-//    msgbox.setStyleSheet("* { background-color:rgb(199,147,88); padding: 7px ; color:rgb(255,255,255)}");
     msgbox.exec();
 }

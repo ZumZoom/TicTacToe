@@ -5,37 +5,34 @@
 
 #include <QtGui/QWidget>
 
-struct field {
-    enum Owner
-    {
-        Empty   = 0,
-        Cross   = 1,
-        Nought  = 2,
-        Draw    = 3
-    };
-    Owner data[3][3];
-    Owner winner;
-    int freeCells;
-
-    field() : winner(Empty), freeCells(9)
-    {
-        memset(data, 0, sizeof(data));
-    }
-};
-
 class TicTacToe : public QWidget
 {
-//    Q_OBJECT
+    static const size_t DESK_SIZE = 3;
+    static const size_t FIELD_SIZE = 3;
 
-    static const int DESK_SIZE = 3;
-    static const int FIELD_SIZE = 3;
+    struct field {
+        enum Owner
+        {
+            Empty   = 0,
+            Cross   = 1,
+            Nought  = 2,
+            Draw    = 3
+        };
+        Owner data[FIELD_SIZE][FIELD_SIZE];
+        Owner winner;
+        int freeCells;
+
+        field() : winner(Empty), freeCells(9)
+        {
+            memset(data, 0, sizeof(data));
+        }
+    };
 
 public:
     TicTacToe(QWidget *parent = 0)
         : QWidget(parent)
         , nextMove(-1, -1)
         , player(0)
-
     {
         setFixedSize(600, 600);
     }
