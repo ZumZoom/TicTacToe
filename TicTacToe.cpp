@@ -7,66 +7,54 @@ void TicTacToe::clearBoard()
     for(size_t i = 0; i < 3; ++i)
         for(size_t j = 0; j < 3; ++j)
             desk[i][j] = field();
+    player = 0;
+    nextMove = std::make_pair(-1, -1);
     update();
+}
+
+void TicTacToe::updateField(int f_i, int f_j, QMouseEvent *event) {
+    for(int i = 0; i < FIELD_SIZE; ++i)
+        for(int j = 0; j < FIELD_SIZE; ++j) {
+            QRect cell = cellRect(f_i, f_j, i, j);
+            if (cell.contains(event->pos())) {
+                if (desk[f_i][f_j].data[i][j] == field::Empty) {
+                    desk[f_i][f_j].freeCells--;
+                    if (player % 2 == 0)
+                        desk[f_i][f_j].data[i][j] = field::Cross;
+                    else
+                        desk[f_i][f_j].data[i][j] = field::Nought;
+                    if(desk[nextMove.first][nextMove.second].winner == field::Empty)
+                        checkWinner(nextMove.first, nextMove.second);
+                    player ^= 1;
+                    if(desk[i][j].freeCells == 0) {
+                        nextMove.first = -1;
+                        nextMove.second = -1;
+                    }
+                    else {
+                        nextMove.first = i;
+                        nextMove.second = j;
+                    }
+                    update();
+                    return;
+                }
+            }
+        }
 }
 
 void TicTacToe::mousePressEvent(QMouseEvent *event)
 {
     if(nextMove.first == -1 && nextMove.second == -1) {
-        for(int f_i = 0; f_i < 3; ++f_i)
-            for(int f_j = 0; f_j < 3; ++f_j)
-                for(int i = 0; i < 3; ++i)
-                    for(int j = 0; j < 3; ++j) {
-                        QRect cell = cellRect(f_i, f_j, i, j);
-                        if (cell.contains(event->pos())) {
-                            if (desk[f_i][f_j].data[i][j] == field::Empty) {
-                                desk[f_i][f_j].freeCells--;
-                                if (player % 2 == 0)
-                                    desk[f_i][f_j].data[i][j] = field::Cross;
-                                else
-                                    desk[f_i][f_j].data[i][j] = field::Nought;
-                                player ^= 1;
-                                if(desk[i][j].freeCells == 0) {
-                                    nextMove.first = -1;
-                                    nextMove.second = -1;
-                                }
-                                else {
-                                    nextMove.first = i;
-                                    nextMove.second = j;
-                                }
-                                update();
-                                break;
-                            }
-                        }
-                    }
-    }
-    else {
-        for(int i = 0; i < 3; ++i)
-            for(int j = 0; j < 3; ++j) {
-                QRect cell = cellRect(nextMove.first, nextMove.second, i, j);
-                if (cell.contains(event->pos())) {
-                    if (desk[nextMove.first][nextMove.second].data[i][j] == field::Empty) {
-                        desk[nextMove.first][nextMove.second].freeCells--;
-                        if (player % 2 == 0)
-                            desk[nextMove.first][nextMove.second].data[i][j] = field::Cross;
-                        else
-                            desk[nextMove.first][nextMove.second].data[i][j] = field::Nought;
-                        if(desk[nextMove.first][nextMove.second].winner == field::Empty)
-                            checkWinner(nextMove.first, nextMove.second);
-                        player ^= 1;
-                        if(desk[i][j].freeCells == 0) {
-                            nextMove.first = -1;
-                            nextMove.second = -1;
-                        }
-                        else {
-                            nextMove.first = i;
-                            nextMove.second = j;
-                        }
-                        update();
-                        break;
-                    }
+        for(int f_i = 0; f_i < DESK_SIZE; ++f_i)
+            for(int f_j = 0; f_j < DESK_SIZE; ++f_j) {
+                QRect field = fieldRect(f_i, f_j);
+                if(field.contains(event->pos())) {
+                    updateField(f_i, f_j, event);
+                    return;
                 }
             }
+    }
+    else {
+        updateField(nextMove.first, nextMove.second, event);
     }
 }
 
@@ -95,7 +83,7 @@ void TicTacToe::paintEvent(QPaintEvent * /* event */)
             }
             case field::Draw :
             {
-                painter.setBrush(Qt::darkMagenta);
+                painter.setBrush(Qt::darkGray);
                 painter.drawRect(fieldRect(i, j));
                 break;
             }
@@ -150,6 +138,11 @@ void TicTacToe::paintEvent(QPaintEvent * /* event */)
                         painter.drawEllipse(cell);
                     }
                 }
+
+    if(nextMove.first != -1 && nextMove.second != -1) {
+        painter.setPen(QPen(Qt::yellow, 4));
+        painter.drawRect(fieldRect(nextMove.first, nextMove.second));
+    }
 }
 
 QRect TicTacToe::cellRect(int fieldRow, int fieldCol, int row, int col) const
@@ -219,6 +212,7 @@ const QString WinMessages[] = { "2222222222222222", "Cross wins the match!", "No
 }
 
 void TicTacToe::checkGlobalWinner() {
+    update();
     for(int ci = 0; ci < 3; ++ci) {
         if(desk[ci][0].winner == desk[ci][1].winner &&
            desk[ci][0].winner == desk[ci][2].winner &&

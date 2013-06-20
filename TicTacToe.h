@@ -27,6 +27,9 @@ class TicTacToe : public QWidget
 {
 //    Q_OBJECT
 
+    static const int DESK_SIZE = 3;
+    static const int FIELD_SIZE = 3;
+
 public:
     TicTacToe(QWidget *parent = 0)
         : QWidget(parent)
@@ -34,26 +37,27 @@ public:
         , player(0)
 
     {
-        setFixedSize(800, 800);
+        setFixedSize(600, 600);
     }
     void clearBoard();
 
 protected:
-    void mousePressEvent(QMouseEvent *event);
-    void paintEvent(QPaintEvent *event);
+    virtual void mousePressEvent(QMouseEvent *event);
+    virtual void paintEvent(QPaintEvent *event);
 
 private:
     QRect cellRect(int fieldRow, int fieldCol, int row, int col) const;
     QRect fieldRect(int row, int col) const;
-    int cellWidth() const { return width() / 9; }
-    int cellHeight() const { return height() / 9; }
-    int fieldWidth() const { return width() / 3; }
-    int fieldHeight() const { return height() / 3; }
+    int cellWidth() const { return width() / (DESK_SIZE * FIELD_SIZE); }
+    int cellHeight() const { return height() / (DESK_SIZE * FIELD_SIZE); }
+    int fieldWidth() const { return width() / DESK_SIZE; }
+    int fieldHeight() const { return height() / DESK_SIZE; }
+    void updateField(int f_i, int f_j, QMouseEvent *event);
     void checkWinner(int f_i, int f_j);
     void checkGlobalWinner();
     void showMessage(const QString &str);
 
-    field desk[3][3];
+    field desk[DESK_SIZE][DESK_SIZE];
     std::pair<int, int> nextMove;
     int player;
 
